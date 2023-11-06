@@ -1,0 +1,393 @@
+type Comment_votes {
+  created_at: DateTime!
+  downvote: Boolean
+  id: ID!
+  upvote: Boolean
+  user_id: ID!
+}
+
+type Comments {
+  user_id: ID!
+  body: String!
+  created_at: DateTime!
+  id: ID!
+  post_id: ID!
+}
+
+type Post_votes {
+  created_at: DateTime!
+  downvote: Boolean
+  id: ID!
+  upvote: Boolean
+  user_id: ID!
+}
+
+type Posts {
+  body: String
+  created_at: DateTime!
+  id: ID!
+  title: String!
+  topic_id: ID!
+  user_id: ID!
+}
+
+type Profile {
+  created_at: DateTime!
+  display_name: String
+  email: String!
+  id: ID!
+  profile_image: ID
+  username: String!
+}
+
+
+type ProfileImage {
+  id: ID!
+  bucket_id: String!
+  name: String!
+  owner: ID
+  created_at: DateTime!
+  updated_at: DateTime!
+  last_accessed_at: DateTime!
+  metadata: JSON
+  path_tokens: String!
+  version: String
+}
+
+type Topics {
+  created_at: DateTime!
+  created_by_user_id: ID
+  description: String
+  id: ID!
+  title: String
+}
+
+"""
+The following queries are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Query {
+  " Queries for type 'Comment_votes' "
+  comment_votesList: [Comment_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comment_votes"
+      configuration: "postgresql_config"
+    )
+  comment_votesPaginatedList(first: Int, after: Int): [Comment_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "downvote", "id", "upvote", "user_id" FROM "comment_votes" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Comments' "
+  commentsList: [Comments]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      configuration: "postgresql_config"
+    )
+  commentsPaginatedList(first: Int, after: Int): [Comments]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "user_id", "body", "created_at", "id", "post_id" FROM "comments" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Post_votes' "
+  post_votesList: [Post_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "post_votes"
+      configuration: "postgresql_config"
+    )
+  post_votesPaginatedList(first: Int, after: Int): [Post_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "downvote", "id", "upvote", "user_id" FROM "post_votes" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Posts' "
+  postsList: [Posts]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      configuration: "postgresql_config"
+    )
+  postsPaginatedList(first: Int, after: Int): [Posts]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "body", "created_at", "id", "title", "topic_id", "user_id" FROM "posts" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Profile' "
+  getProfileList: [Profile]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "profile"
+      configuration: "postgresql_config"
+    )
+  getProfileByID(id: ID!): Profile
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "profile"
+      query: """
+      SELECT * FROM profile WHERE "id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getProfileImageByID(id: ID!): Profile
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT * FROM storage.objects WHERE "id" = $1
+      """
+      configuration: "postgresql_config"
+  )
+  profilePaginatedList(first: Int, after: Int): [Profile]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "display_name", "email", "id", "profile_image", "username" FROM "profile" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Topics' "
+  topicsByCreated_by_user_id(created_by_user_id: ID!): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+  topicsByCreated_by_user_idAndDescription(
+    created_by_user_id: ID!
+    description: String!
+  ): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+  topicsList: [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+  topicsPaginatedList(first: Int, after: Int): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "created_by_user_id", "description", "id", "title" FROM "topics" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+}
+
+"""
+The following mutations are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Mutation {
+  " Mutations for type 'Comment_votes' "
+  deleteComment_votes(
+    downvote: Boolean!
+    user_id: ID!
+    id: ID!
+    created_at: DateTime!
+    upvote: Boolean!
+  ): Comment_votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comment_votes"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertComment_votes(
+    downvote: Boolean
+    user_id: ID!
+    id: ID!
+    created_at: DateTime!
+    upvote: Boolean
+  ): Comment_votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comment_votes"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  " Mutations for type 'Comments' "
+  deleteComments(
+    body: String!
+    post_id: ID!
+    id: ID!
+    created_at: DateTime!
+    user_id: ID!
+  ): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertComments(
+    body: String!
+    post_id: ID!
+    id: ID!
+    created_at: DateTime!
+    user_id: ID!
+  ): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  " Mutations for type 'Post_votes' "
+  deletePost_votes(
+    downvote: Boolean!
+    user_id: ID!
+    id: ID!
+    created_at: DateTime!
+    upvote: Boolean!
+  ): Post_votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "post_votes"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertPost_votes(
+    downvote: Boolean
+    user_id: ID!
+    id: ID!
+    created_at: DateTime!
+    upvote: Boolean
+  ): Post_votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "post_votes"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  " Mutations for type 'Posts' "
+  deletePosts(
+    body: String!
+    user_id: ID!
+    topic_id: ID!
+    id: ID!
+    created_at: DateTime!
+    title: String!
+  ): Posts
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertPosts(
+    body: String
+    user_id: ID!
+    topic_id: ID!
+    id: ID!
+    created_at: DateTime!
+    title: String!
+  ): Posts
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  " Mutations for type 'Profile' "
+  deleteProfile(
+    email: String!
+    username: String!
+    display_name: String!
+    id: ID!
+    created_at: DateTime!
+    profile_image: ID!
+  ): Profile
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "profile"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertProfile(
+    email: String!
+    username: String!
+    display_name: String
+    id: ID!
+    created_at: DateTime!
+    profile_image: ID
+  ): Profile
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "profile"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  " Mutations for type 'Topics' "
+  deleteTopics(
+    created_by_user_id: ID!
+    description: String!
+    id: ID!
+    created_at: DateTime!
+    title: String!
+  ): Topics
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertTopics(
+    created_by_user_id: ID
+    description: String
+    id: ID!
+    created_at: DateTime!
+    title: String
+  ): Topics
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+}

@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .comment-container > .comment-container {
+    @apply ml-8;
+  }
+
+  .comment {
+    @apply flex gap-2 mb-8;
+  }
+
+  .comment-threadline {
+    content: '';
+    height: calc(100% - 30px);
+    @apply w-[1.5px] absolute top-[30px] left-3 transform -translate-x-1/2 cursor-pointer;
+    @apply bg-white/40 hover:bg-white;
+  }
+}

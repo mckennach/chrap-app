@@ -1,0 +1,21 @@
+"""
+The following mutations are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Mutation {
+  insertComment_votes(
+    downvote: Boolean!
+    id: ID!
+    created_at: DateTime!
+    upvote: Boolean!
+    comment_id: ID!
+    user_id: ID!
+  ): Comment_votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comment_votes"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+}

@@ -1,0 +1,37 @@
+"""
+The following mutations are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Mutation {
+  " Mutations for type 'Comments' "
+  deleteComments(
+    body: String!
+    post_id: ID!
+    user_id: ID!
+    id: ID!
+    created_at: DateTime!
+    vote: ID!
+  ): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertComments(
+    body: String!
+    post_id: ID!
+    user_id: ID!
+    id: ID!
+    created_at: DateTime!
+    vote: ID
+  ): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+}

@@ -1,0 +1,88 @@
+type Users {
+  created_at: DateTime!
+  display_name: String
+  email: String!
+  id: ID!
+  profile_image_id: ID
+  username: String!
+}
+
+"""
+The following queries are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Query {
+  " Queries for type 'Topics' "
+  topicsByCreated_by_user_id(created_by_user_id: ID!): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+  topicsByCreated_by_user_idAndImage_id(
+    created_by_user_id: ID!
+    image_id: String!
+  ): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Users' "
+  usersList: [Users]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      configuration: "postgresql_config"
+    )
+  usersPaginatedList(first: Int, after: Int): [Users]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "display_name", "email", "id", "profile_image_id", "username" FROM "users" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+}
+
+"""
+The following mutations are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Mutation {
+  " Mutations for type 'Users' "
+  deleteUsers(
+    email: String!
+    username: String!
+    display_name: String!
+    profile_image_id: ID!
+    id: ID!
+    created_at: DateTime!
+  ): Users
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertUsers(
+    email: String!
+    username: String!
+    display_name: String
+    profile_image_id: ID
+    id: ID!
+    created_at: DateTime!
+  ): Users
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+}

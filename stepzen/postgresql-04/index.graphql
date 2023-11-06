@@ -1,0 +1,16 @@
+"""
+The following queries are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Query {
+  topicsByCreated_by_user_idAndDescription(
+    created_by_user_id: ID!
+    description: String!
+  ): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+}

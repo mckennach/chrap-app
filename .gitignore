@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+# tinymce
+
 # testing
 /coverage
 

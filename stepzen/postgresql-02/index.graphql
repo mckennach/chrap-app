@@ -1,0 +1,107 @@
+"""
+The following queries are just a set of examples of how to access your schema.
+Feel free to modify them or aggregate more.
+"""
+type Query {
+  " Queries for type 'Comment_votes' "
+  comment_votesList: [Comment_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comment_votes"
+      configuration: "postgresql_config"
+    )
+  comment_votesPaginatedList(first: Int, after: Int): [Comment_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "comment_id", "created_at", "downvote", "id", "upvote", "user_id", "vote" FROM "comment_votes" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Comments' "
+  commentsList: [Comments]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      configuration: "postgresql_config"
+    )
+  commentsPaginatedList(first: Int, after: Int): [Comments]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "body", "created_at", "id", "parent_id", "post_id", "user_id" FROM "comments" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Post_votes' "
+  post_votesList: [Post_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "post_votes"
+      configuration: "postgresql_config"
+    )
+  post_votesPaginatedList(first: Int, after: Int): [Post_votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "downvote", "id", "post_id", "upvote", "user_id", "vote" FROM "post_votes" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Posts' "
+  postsList: [Posts]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      configuration: "postgresql_config"
+    )
+  postsPaginatedList(first: Int, after: Int): [Posts]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "body", "created_at", "id", "title", "topic_id", "user_id" FROM "posts" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  " Queries for type 'Profile' "
+  profileList: [Profile]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "profile"
+      configuration: "postgresql_config"
+    )
+  profilePaginatedList(first: Int, after: Int): [Profile]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "display_name", "email", "id", "profile_image_id", "username" FROM "profile" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+  topicsList: [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "topics"
+      configuration: "postgresql_config"
+    )
+  topicsPaginatedList(first: Int, after: Int): [Topics]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "created_by_user_id", "description", "id", "slug", "title", "topic_image_id" FROM "topics" LIMIT $1 OFFSET $2
+      """
+      configuration: "postgresql_config"
+    )
+}
