@@ -4,22 +4,28 @@ import { useEffect, useState, useContext } from 'react'
 import { StoreContext } from '@/app/providers'
 
 // Components
-import TextEditor from '@/components/ui/text-editor'
 import Card from '@/components/ui/card'
 import * as Tabs from '@radix-ui/react-tabs'
-import { FileText, Image, Link, LinkIcon, VoteIcon } from 'lucide-react'
+import { FileText, Image, LinkIcon, VoteIcon } from 'lucide-react'
 import ImagePost from '@/components/create-post/image-post'
 import TextPost from '@/components/create-post/text-post'
 import LinkPost from '@/components/create-post/link-post'
+import { UserProfileProps } from '@/utils/types/profile.types'
 
 const SubmitPostPage = () => {
+  const userData = useContext(StoreContext)
   const [activeTab, setActiveTab] = useState<string>('post')
-  const [textInput, setTextInput] = useState<string>('')
 
-  const onSubmit: (commentInput: string) => void = async (
-    commentInput: string
-  ) => {
-    // console.log(commentInput);
+  useEffect(() => {
+    const activeTab = localStorage.getItem('activeTab')
+    if (activeTab) {
+      setActiveTab(activeTab)
+    }
+  }, [])
+
+  const onTabChange: (tab: string) => void = (tab: string) => {
+    localStorage.setItem('activeTab', tab)
+    setActiveTab(tab)
   }
 
   return (
@@ -32,11 +38,11 @@ const SubmitPostPage = () => {
           </button>
         </div>
 
-        <Card className="p-0 !mt-0">
+        <Card className="!p-0 !mt-0">
           <Tabs.Root
             className="flex flex-col w-full"
             value={activeTab}
-            onValueChange={(value) => setActiveTab(value)}
+            onValueChange={(value) => onTabChange(value)}
           >
             <Tabs.List
               className="shrink-0 flex border-b border-neutral-focus"
@@ -82,7 +88,10 @@ const SubmitPostPage = () => {
               className="grow p-5 rounded-b-md outline-none "
               value="image-video"
             >
-              <ImagePost />
+              <ImagePost
+                user={userData?.user as UserProfileProps}
+                userAuth={userData?.userAuth}
+              />
             </Tabs.Content>
             <Tabs.Content
               className="grow p-5 rounded-b-md outline-none "

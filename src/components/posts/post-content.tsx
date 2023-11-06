@@ -1,12 +1,19 @@
 'use client'
 
+import 'swiper/css'
 import { useContext, useEffect, useState } from 'react'
 import { StoreContext } from '@/app/providers'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+
+// GraphQL
 import { useMutation } from '@apollo/client'
 import { UPDATE_POST_VOTE } from '@/utils/api/graphql/mutations/posts.mutations'
 import { UPDATE_SAVED_ITEMS } from '@/utils/api/graphql/mutations/profile.mutations'
 
 // Components
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation } from 'swiper/modules'
+import 'swiper/css/navigation'
 import {
   EyeOff,
   Flag,
@@ -17,12 +24,17 @@ import {
 } from 'lucide-react'
 import TimeAgo from 'react-timeago'
 import Link from 'next/link'
+import Image from 'next/image'
 import Avatar from '../ui/avatar'
 import Dropdown from '../ui/dropdown'
 
 // Helpers
 import { createMarkup } from '@/utils/helpers/text'
-import { getImageUrl } from '@/utils/helpers/images'
+import {
+  getImageUrl,
+  getImageUrlFromName,
+  imageLoader,
+} from '@/utils/helpers/images'
 
 // Types
 import type { PostProps, PostVotesProps } from '@/utils/types/posts.types'
@@ -43,16 +55,10 @@ export default function PostContent({
   user: UserProfileProps
   updatePost: (postId: string) => void
 }) {
-  const [updatePostVote, { data, loading, error }] =
-    useMutation(UPDATE_POST_VOTE)
-  const [
-    updateSavedItems,
-    {
-      data: savedItemsData,
-      loading: savedItemsLoading,
-      error: savedItemsError,
-    },
-  ] = useMutation(UPDATE_SAVED_ITEMS)
+  const supabase = createClientComponentClient()
+  const [updatePostVote] = useMutation(UPDATE_POST_VOTE)
+  const [updateSavedItems] = useMutation(UPDATE_SAVED_ITEMS)
+  const [images, setImages] = useState<string[]>([])
   const { userAuth } = useContext(StoreContext) || {}
   const [topicImage, setTopicImage] = useState<string | null>(null)
   const [isPoster, setIsPoster] = useState<boolean>(false)
@@ -117,6 +123,15 @@ export default function PostContent({
         setTopicImage(url)
       })
     }
+
+    if (postData?.images && postData?.images?.ids?.length > 0) {
+      postData?.images?.ids?.map(async (image) => {
+        getImageUrlFromName(image, 'post_images').then((url) => {
+          setImages((prev) => [...prev, url])
+        })
+      })
+    }
+
     if (postData?.votes && postData?.votes.length > 0) {
       calculateVotes(postData?.votes)
     }
@@ -144,7 +159,7 @@ export default function PostContent({
 
   const onSave = (isSaved: boolean, itemId: string, user: UserProfileProps) => {
     const { saved_items } = user
-    let updatedObject
+
     if (isSaved) {
       if (saved_items && saved_items?.items?.length > 0) {
         const updatedList = saved_items?.items?.filter((item) => {
@@ -201,6 +216,8 @@ export default function PostContent({
 
   if (!user || !postData) return null
 
+  console.log(images)
+
   return (
     <div className="flex gap-2">
       <VotingBox
@@ -210,8 +227,8 @@ export default function PostContent({
         userVote={userVote && userVote?.vote ? userVote?.vote : 0}
         updateVote={updateVote}
       />
-      <div className="flex flex-col space-y-4">
-        <div className="flex flex-col p-2">
+      <div className="flex flex-col space-y-4 max-w-full">
+        <div className="flex flex-col p-2 w-full relative">
           <div className="flex items-center text-[10px] break-words text-neutral-500 mb-1">
             <div className="mr-1">
               <Link
@@ -247,6 +264,41 @@ export default function PostContent({
           <h2 className="text-md lg:text-xl font-normal break-words mb-3 text-white">
             {postData.title}
           </h2>
+
+          {images && images?.length > 0 && (
+            <Swiper
+              modules={[Navigation]}
+              loop={false}
+              spaceBetween={0}
+              slidesPerView={1}
+              navigation
+              className="pr-4 w-full h-[400px]"
+              onSlideChange={() => console.log('slide change')}
+              onSwiper={(swiper) => console.log(swiper)}
+            >
+              {images?.map((image, index) => (
+                <SwiperSlide
+                  key={index}
+                  className="relative h-[200px] w-full flex justify-center items-center"
+                >
+                  <Image
+                    src={image}
+                    alt="Post Image"
+                    className="mx-auto max-w-full"
+                    style={{ width: 'auto', height: '100%' }}
+                    width={400}
+                    height={400}
+                    // fill={true}
+                    // style={{ objectFit: 'cover', objectPosition: 'center' }}
+                    // sizes='(max-width: 768px) 100vw, 768px'
+
+                    loader={imageLoader}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+
           <div
             className="max-h-48 mask-box text-white text-sm break-words overflow-hidden overflow-ellipsis"
             dangerouslySetInnerHTML={createMarkup(postData.body)}

@@ -16,7 +16,7 @@ export interface PostProps {
   title: string
   body: string
   images: {
-    items: string[]
+    ids: string[]
   }
   user_id: string
   user: UserProfileProps

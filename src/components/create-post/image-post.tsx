@@ -1,19 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+// Components
+import toast from 'react-hot-toast'
 
 // GraphQL
 import { useMutation } from '@apollo/client'
 import { INSERT_POST } from '@/utils/api/graphql/mutations/posts.mutations'
-import { clear } from 'console'
+
+// Types
+import type { UserProfileProps } from '@/utils/types/profile.types'
 
 interface FormInput {
   title: string
   image: string
 }
 
-export default function ImagePost() {
+export default function ImagePost({
+  user,
+  userAuth,
+}: {
+  user: UserProfileProps
+  userAuth: any
+}) {
   const router = useRouter()
+  const supabase = createClientComponentClient()
   const [insertPost, { data, loading, error }] = useMutation(INSERT_POST)
   const [image, setImage] = useState<any>(null)
   const [imageData, setImageData] = useState<any>('')
@@ -27,36 +39,51 @@ export default function ImagePost() {
     formState: { errors },
   } = useForm<FormInput>()
 
-  // watch input value by passing the name of it
-
-  // useEffect(() => {
-  //   console.log(image);
-  //   console.log(imageData);
-  // }, [image, imageData]);
-
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
-    console.log(imageData)
-    if (image) {
+    if (!image) {
       setError('image', {
         type: 'required',
         message: 'Image or Video is required',
       })
     } else {
-      clearErrors('image')
-      const { title } = data
-      const post = {
-        title,
-        image: imageData,
-        type: 'image',
+      const { data: imageUploadData, error: imageUploadError } =
+        await supabase.storage
+          .from('post_images')
+          .upload(
+            `${userAuth?.id}/${image?.name}_${new Date().getTime()}`,
+            image
+          )
+
+      if (imageUploadError) {
+        toast.error('Something went wrong, please try again')
+        return
       }
+
+      const { title } = data
+
       try {
-        const newPost = await insertPost({ variables: { post } })
+        const newPost = await insertPost({
+          variables: {
+            title,
+            body: '',
+            images: { ids: [imageUploadData?.path] },
+            external_link: '',
+            user_id: userAuth.id,
+            vote_ids: [userAuth.id],
+            topic_id: '47d98b0e-6e88-4c85-bbd9-cb788f9cfad0',
+            created_at: new Date().toISOString(),
+          },
+        })
         reset()
         setImage('')
         setImageData('')
-        console.log(newPost)
+
+        router.push(
+          `/t/${newPost?.data?.insertPost?.topic_slug}/${newPost?.data?.insertPost?.id}`
+        )
       } catch (error) {
         console.log(error)
+        toast.error('Something went wrong, please try again')
       }
     }
   }

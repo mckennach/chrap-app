@@ -18,6 +18,17 @@ export const checkAbsoluteImage = (src: string) => {
   }
 }
 
+interface ImageFolderProps {
+  name: string
+  folder: string
+}
+
+export const getImageUrlFromName = async (name: string, bucket: string) => {
+  let imageUrl = null
+  imageUrl = await supabase.storage.from(bucket).getPublicUrl(name)
+  return imageUrl?.data?.publicUrl
+}
+
 export const getImageUrl = async (imageObject: ImageProps, bucket: string) => {
   const { name } = imageObject
   let imageUrl = null

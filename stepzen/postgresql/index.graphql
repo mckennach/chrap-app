@@ -82,7 +82,7 @@ type Posts {
       query: "getProfileById"
       arguments: [{ name: "id", field: "user_id" }]
     )
-  vote_ids: [ID]
+  vote_ids: [ID!]
   votes: [Post_votes]
     @materializer(
       query: "getPostVotesUsingPostId"
@@ -562,7 +562,7 @@ type Mutation {
     external_link: String
     user_id: ID!
     topic_id: ID!
-    id: ID!
+    vote_ids: [ID!]
     created_at: DateTime!
     title: String!
   ): Posts
